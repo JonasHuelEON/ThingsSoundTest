@@ -11,26 +11,6 @@ import java.io.DataInputStream
 import kotlin.math.roundToInt
 
 
-/**
- * Skeleton of an Android Things activity.
- *
- * Android Things peripheral APIs are accessible through the class
- * PeripheralManagerService. For example, the snippet below will open a GPIO pin and
- * set it to HIGH:
- *
- * <pre>{@code
- * val service = PeripheralManagerService()
- * val mLedGpio = service.openGpio("BCM6")
- * mLedGpio.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW)
- * mLedGpio.value = true
- * }</pre>
- * <p>
- * For more complex peripherals, look for an existing user-space driver, or implement one if none
- * is available.
- *
- * @see <a href="https://github.com/androidthings/contrib-drivers#readme">https://github.com/androidthings/contrib-drivers#readme</a>
- *
- */
 class MainActivity : Activity() {
 
 	companion object {
@@ -62,9 +42,10 @@ class MainActivity : Activity() {
 		initDsp()
 
 		Handler().postDelayed({
-//			playAudio1()
-		    playAudio2()
+			playAudio1()
+//		    playAudio2()
 //			playAudio3()
+//			volumeTest(0.8, 1.0)
 		}, 2000)
 	}
 
@@ -117,7 +98,7 @@ class MainActivity : Activity() {
 		val manager = this.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
 		val maxVolume = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-		val targetVolume = (maxVolume * 0.2).roundToInt()
+		val targetVolume = (maxVolume * 1.0).roundToInt()
 		Log.i(TAG, "setting volume to: $targetVolume")
 		if (!manager.isVolumeFixed)
 			manager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
@@ -151,9 +132,8 @@ class MainActivity : Activity() {
 			i = dis.read(buffer, 0, bufferSize)
 			if (i == -1)
 				break
-			else {
+			else
 				mAudioTrack.write(buffer, 0, i)
-			}
 		}
 
 		dis.close()
@@ -219,6 +199,59 @@ class MainActivity : Activity() {
 
 		Handler().postDelayed({
 			playAudio3()
+		}, 1000)
+	}
+
+	private fun volumeTest(from: Double, to: Double) {
+		Log.i(TAG, "VolumeTest")
+
+		val manager = this.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+		val maxVolume = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+
+		val mOutputBufferSize = AudioTrack.getMinBufferSize(
+				AUDIO_FORMAT_OUT_STEREO.sampleRate,
+				AUDIO_FORMAT_OUT_STEREO.channelMask,
+				AUDIO_FORMAT_OUT_STEREO.encoding
+		)
+
+		val mAudioTrack = AudioTrack.Builder()
+				.setAudioAttributes(AUDIO_ATTRIBUTES_MUSIC)
+				.setAudioFormat(AUDIO_FORMAT_OUT_STEREO)
+				.setBufferSizeInBytes(mOutputBufferSize)
+				.build()
+
+		val dis = DataInputStream(
+				resources.openRawResource(
+//						resources.getIdentifier("a440", "raw", packageName)
+						R.raw.a440r48b16
+				)
+		)
+
+		mAudioTrack.play()
+
+		val bufferSize = 100 * 1024
+		val buffer = ByteArray(bufferSize)
+
+		dis.read(buffer, 0, bufferSize).takeIf { it != -1 }?.also {
+			println("BufferSize: $it")
+			for (volume in (maxVolume*from).roundToInt() .. (maxVolume*to).roundToInt()) {
+				if (!manager.isVolumeFixed) {
+					println("volume: $volume")
+					manager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0)
+				}
+
+				mAudioTrack.write(buffer, 0, it)
+			}
+		}
+
+		dis.close()
+		mAudioTrack.stop()
+
+		Log.i(TAG, "PlayAudio1 track finished")
+
+		Handler().postDelayed({
+			playAudio1()
 		}, 1000)
 	}
 

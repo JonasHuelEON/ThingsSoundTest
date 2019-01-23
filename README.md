@@ -4,9 +4,10 @@ Simple audio test for Android Things that plays sound in a loop.
 The app will try to initialize the TAS5825M dsp with the config from `amp_cfg_TAS5825M_bypass_LR.sh`, which is converted into a kotlin array by the below mentioned converter. The data is stored in `DspData.kt`.
 
 In the `onCreate` method of the `MainActivity` there are three options to play audio:
-- playAudio1: Uses `AudioTrack` to manually configure audio options and stream data from a WAV file into the output.
-- playAudio2: Uses `AudioManager` to automize playback.
-- playAudio3: Uses `AudioTrack` and feeds the output stream with generated data. This outputs disturbing noise.
+- `playAudio1`: Uses `AudioTrack` to manually configure audio options and stream data from a WAV file into the output.
+- `playAudio2`: Uses `AudioManager` to automize playback.
+- `playAudio3`: Uses `AudioTrack` and feeds the output stream with generated data. This outputs disturbing noise.
+- `volumeTest(from, to)`: Works like `playAudio1`, but only plays a small portion of the audio while increasing the volume.
 
 ---
 
