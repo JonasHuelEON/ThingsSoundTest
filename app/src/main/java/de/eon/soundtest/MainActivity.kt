@@ -117,7 +117,6 @@ class MainActivity : Activity() {
 
 		val dis = DataInputStream(
 				resources.openRawResource(
-//						resources.getIdentifier("a440", "raw", packageName)
 						R.raw.a440r48b16
 				)
 		)
@@ -168,7 +167,7 @@ class MainActivity : Activity() {
 		val manager = this.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
 		val maxVolume = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-//		Log.i(TAG, "setting volume to: $maxVolume")
+		Log.i(TAG, "setting volume to: $maxVolume")
 		if (!manager.isVolumeFixed)
 			manager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0)
 
@@ -223,7 +222,6 @@ class MainActivity : Activity() {
 
 		val dis = DataInputStream(
 				resources.openRawResource(
-//						resources.getIdentifier("a440", "raw", packageName)
 						R.raw.a440r48b16
 				)
 		)
@@ -248,10 +246,10 @@ class MainActivity : Activity() {
 		dis.close()
 		mAudioTrack.stop()
 
-		Log.i(TAG, "PlayAudio1 track finished")
+		Log.i(TAG, "VolumeTest finished")
 
 		Handler().postDelayed({
-			playAudio1()
+			volumeTest(from, to)
 		}, 1000)
 	}
 
